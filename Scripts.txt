@@ -1,0 +1,50 @@
+import requests
+from flask import Flask, jsonify, render_template
+
+app = Flask(__name__)
+
+API_URL = "https://devapi.beyondchats.com/api/get_message_with_sources"
+
+def fetch_data_from_api(url):
+    data = []
+    page = 1
+    while True:
+        response = requests.get(url, params={'page': page})
+        if response.status_code != 200:
+            break
+        json_data = response.json()
+        if not json_data:
+            break
+        data.extend(json_data)
+        page += 1
+    return data
+
+def find_citations(data):
+    citations = []
+    for item in data:
+        response_text = item['response']
+        sources = item['sources']
+        matched_sources = []
+        for source in sources:
+            if source['context'] in response_text:
+                matched_sources.append({
+                    'id': source['id'],
+                    'link': source.get('link', '')
+                })
+        citations.append(matched_sources)
+    return citations
+
+@app.route('/')
+def index():
+    data = fetch_data_from_api(API_URL)
+    citations = find_citations(data)
+    return render_template('index.html', citations=citations)
+
+@app.route('/api/citations', methods=['GET'])
+def get_citations():
+    data = fetch_data_from_api(API_URL)
+    citations = find_citations(data)
+    return jsonify(citations)
+
+if __name__ == '__main__':
+    app.run(debug=True)

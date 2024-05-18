@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Citation Finder</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">API Citation Finder</h1>
+        <div class="mt-3">
+            {% for citation in citations %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Citations for Response {{ loop.index }}</h5>
+                        {% if citation %}
+                            <ul class="list-group">
+                                {% for source in citation %}
+                                    <li class="list-group-item">
+                                        ID: {{ source.id }}<br>
+                                        Link: <a href="{{ source.link }}">{{ source.link }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No citations found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
